@@ -67,7 +67,8 @@ public class MetaProgramSyntaxCheckTransformation extends ProgramTransformation<
 					ConstantTerm.getInstance(p.getTerm().getTerms().size())
 				)
 			));
-			generated.addAll(generateTermDescriptions(p.getTerm().getTerms(), p.getId(), names));
+			Term idTerm = ConstantTerm.getInstance(p.getId());
+			generated.addAll(generateTermDescriptions(p.getTerm().getTerms(), idTerm, names));
 			return generated;
 		}
 		protected List<Atom> generateAll(String[] names) {
@@ -110,7 +111,8 @@ public class MetaProgramSyntaxCheckTransformation extends ProgramTransformation<
 					ConstantTerm.getInstance(factPredicate.getArity())
 				)
 			));
-			metaFacts.addAll(generateTermDescriptions(srcFact.getTerms(), metaFactCount, names));
+			Term idTerm = ConstantTerm.getInstance(metaFactCount);
+			metaFacts.addAll(generateTermDescriptions(srcFact.getTerms(), idTerm, names));
 			metaFactCount++;
 		}
 		System.out.println("================ ================ ================ ================");
@@ -149,7 +151,8 @@ public class MetaProgramSyntaxCheckTransformation extends ProgramTransformation<
 				)
 			));
 			Integer argumentCount = 0;
-			metaFacts.addAll(generateTermDescriptions(headTerms,metaRuleCount,names));
+			Term idTerm = ConstantTerm.getInstance(metaRuleCount);
+			metaFacts.addAll(generateTermDescriptions(headTerms,idTerm,names));
 			//
 			Set<Literal> ruleLiterals = srcRule.getBody();
 			Integer metaLiteralCount = 0;
@@ -182,7 +185,11 @@ public class MetaProgramSyntaxCheckTransformation extends ProgramTransformation<
 						ConstantTerm.getInstance(literalPredicate.getArity())
 					)
 				));
-				metaFacts.addAll(generateLiteralDescriptions(literal.getTerms(), metaRuleCount, metaLiteralCount, names2));
+				Term idTerm2 = FunctionTerm.getInstance("id",
+					ConstantTerm.getInstance(metaRuleCount),
+					ConstantTerm.getInstance(metaLiteralCount)
+					);
+				metaFacts.addAll(generateTermDescriptions(literal.getTerms(), idTerm2, names2));
 				metaLiteralCount++;
 			}
 			metaRuleCount++;
@@ -203,17 +210,17 @@ public class MetaProgramSyntaxCheckTransformation extends ProgramTransformation<
 		return null;
 	}
 
-	protected List<Atom> generateTermDescriptions(List<Term> terms, Integer atomId, String[] names) {
+	protected List<Atom> generateTermDescriptions(List<Term> terms, Term idTerm, String[] names) {
 		List<Atom> generated = new ArrayList<>();
 		Integer idx = 0;
 		for (Term term : terms) {
-			generated.addAll(generateTermDescription(term, atomId, idx++, names));
+			generated.addAll(generateTermDescription(term, idTerm, idx++, names));
 			generated.addAll(funcLog.generateAll(names));
 		}
 		return generated;
 	}
 
-	protected List<Atom> generateTermDescription(Term term, Integer atomId, Integer argId, String[] names) {
+	protected List<Atom> generateTermDescription(Term term, Term idTerm, Integer argId, String[] names) {
 		List<Atom> generated = new ArrayList<>();
 		Term termArg = null;
 		if (term instanceof ConstantTerm) {
@@ -239,56 +246,10 @@ public class MetaProgramSyntaxCheckTransformation extends ProgramTransformation<
 		}
 		generated.add(new BasicAtom(
 			Predicate.getInstance(names[2],2),
-			ConstantTerm.getInstance(atomId),
+			idTerm,
 			FunctionTerm.getInstance("arg",	ConstantTerm.getInstance(argId), termArg)
 		));
 		return generated;
 	}
-
-	protected List<Atom> generateLiteralDescriptions(List<Term> terms, Integer ruleId, Integer literalId, String[] names) {
-		List<Atom> generated = new ArrayList<>();
-		Integer idx = 0;
-		for (Term term : terms) {
-			generated.addAll(generateLiteralDescription(term, ruleId, literalId, idx++, names));
-			generated.addAll(funcLog.generateAll(names));
-		}
-		return generated;
-	}
-
-	protected List<Atom> generateLiteralDescription(Term term, Integer ruleId, Integer literalId, Integer argId, String[] names) {
-		List<Atom> generated = new ArrayList<>();
-		Term literalArg = null;
-		if (term instanceof ConstantTerm) {
-			literalArg = FunctionTerm.getInstance(
-				((ConstantTerm<?>)term).isSymbolic()?
-					"const":
-					((ConstantTerm<?>)term).getObject().getClass().getSimpleName().toLowerCase(),
-				ConstantTerm.getInstance(term)
-				);
-		} else if (term instanceof FunctionTerm) {
-			Integer funcId = this.funcLog.append((FunctionTerm)term);
-			literalArg = FunctionTerm.getInstance(
-				"func",
-				ConstantTerm.getInstance(funcId)
-				);
-		} else if (term instanceof VariableTerm) {
-			literalArg = FunctionTerm.getInstance(
-				"var",
-				ConstantTerm.getInstance(((VariableTerm)term).toString())
-			);
-		} else {
-			throw new RuntimeException("unhandled term type: "+term.getClass().getSimpleName());
-		}
-		generated.add(new BasicAtom(
-			Predicate.getInstance(names[2],2),
-			FunctionTerm.getInstance("id",
-				ConstantTerm.getInstance(ruleId),
-				ConstantTerm.getInstance(literalId)
-			),
-			FunctionTerm.getInstance("arg",	ConstantTerm.getInstance(argId), literalArg)
-		));
-		return generated;
-	}
-
 
 }
