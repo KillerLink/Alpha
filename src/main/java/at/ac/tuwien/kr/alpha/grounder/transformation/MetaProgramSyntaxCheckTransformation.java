@@ -97,19 +97,16 @@ public class MetaProgramSyntaxCheckTransformation extends ProgramTransformation<
 		for (Atom srcFact : srcFacts) {
 			String[] names = new String[] {"fact", "fact_predicate", "fact_argument"};
 			Predicate factPredicate = srcFact.getPredicate();
-			metaFacts.add(new BasicAtom(
-				Predicate.getInstance(names[0],1),
-				ConstantTerm.getInstance(metaFactCount)
-			));
+			Term idTerm = ConstantTerm.getInstance(metaFactCount);
+			metaFacts.add(new BasicAtom(Predicate.getInstance(names[0],1),idTerm));
 			metaFacts.add(new BasicAtom(
 				Predicate.getInstance(names[1],2),
-				ConstantTerm.getInstance(metaFactCount),
+				idTerm,
 				FunctionTerm.getInstance("pred",
 					ConstantTerm.getSymbolicInstance(factPredicate.getName()),
 					ConstantTerm.getInstance(factPredicate.getArity())
 				)
 			));
-			Term idTerm = ConstantTerm.getInstance(metaFactCount);
 			metaFacts.addAll(generateTermDescriptions(srcFact.getTerms(), idTerm, names));
 			metaFactCount++;
 		}
@@ -131,25 +128,17 @@ public class MetaProgramSyntaxCheckTransformation extends ProgramTransformation<
 			} else {
 				throw new RuntimeException("unhandled head type: "+ruleHead.getClass().getSimpleName());
 			}
-			metaFacts.add(new BasicAtom(
-				Predicate.getInstance(names[0],1),
-				ConstantTerm.getInstance(metaRuleCount)
-			));
-			metaFacts.add(new BasicAtom(
-				Predicate.getInstance("rule_head_type",2),
-				ConstantTerm.getInstance(metaRuleCount),
-				headType
-			));
+			Term idTerm = ConstantTerm.getInstance(metaRuleCount);
+			metaFacts.add(new BasicAtom(Predicate.getInstance(names[0],1),idTerm));
+			metaFacts.add(new BasicAtom(Predicate.getInstance("rule_head_type",2),idTerm,headType));
 			metaFacts.add(new BasicAtom(
 				Predicate.getInstance(names[1],2),
-				ConstantTerm.getInstance(metaRuleCount),
+				idTerm,
 				FunctionTerm.getInstance("pred",
 					ConstantTerm.getSymbolicInstance(headPredicate.getName()),
 					ConstantTerm.getInstance(headPredicate.getArity())
 				)
 			));
-			Integer argumentCount = 0;
-			Term idTerm = ConstantTerm.getInstance(metaRuleCount);
 			metaFacts.addAll(generateTermDescriptions(headTerms,idTerm,names));
 			//
 			Set<Literal> ruleLiterals = srcRule.getBody();
@@ -164,29 +153,19 @@ public class MetaProgramSyntaxCheckTransformation extends ProgramTransformation<
 				} else {
 					throw new RuntimeException("unhandled literal type: "+literal.getClass().getSimpleName());
 				}
-				metaFacts.add(new BasicAtom(
-					Predicate.getInstance("literal_type",2),
-					FunctionTerm.getInstance("id",
-						ConstantTerm.getInstance(metaRuleCount),
-						ConstantTerm.getInstance(metaLiteralCount)
-					),
-					ConstantTerm.getInstance(literalType)
-				));
+				Term idTerm2 = FunctionTerm.getInstance("id",
+					ConstantTerm.getInstance(metaRuleCount),
+					ConstantTerm.getInstance(metaLiteralCount)
+					);
+				metaFacts.add(new BasicAtom(Predicate.getInstance("literal_type",2),idTerm2,ConstantTerm.getInstance(literalType)));
 				metaFacts.add(new BasicAtom(
 					Predicate.getInstance(names[1],2),
-					FunctionTerm.getInstance("id",
-						ConstantTerm.getInstance(metaRuleCount),
-						ConstantTerm.getInstance(metaLiteralCount)
-					),
+					idTerm2,
 					FunctionTerm.getInstance("pred",
 						ConstantTerm.getSymbolicInstance(literalPredicate.getName()),
 						ConstantTerm.getInstance(literalPredicate.getArity())
 					)
 				));
-				Term idTerm2 = FunctionTerm.getInstance("id",
-					ConstantTerm.getInstance(metaRuleCount),
-					ConstantTerm.getInstance(metaLiteralCount)
-					);
 				metaFacts.addAll(generateTermDescriptions(literal.getTerms(), idTerm2, names2));
 				metaLiteralCount++;
 			}
