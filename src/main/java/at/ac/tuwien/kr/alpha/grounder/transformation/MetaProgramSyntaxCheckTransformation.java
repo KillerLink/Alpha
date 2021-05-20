@@ -88,11 +88,9 @@ public class MetaProgramSyntaxCheckTransformation extends ProgramTransformation<
 
 		List<Atom> metaFacts = new ArrayList<>();
 		List<BasicRule> metaRules = new ArrayList<>();
-
 		FunctionTermLog funcLog = new FunctionTermLog();
-		Deque<FunctionTerm> funcTerms = new ArrayDeque<>();
-		Integer metaFuncCount = 0;
 
+		//TODO: convert into  basic rules mit normal heads?
 		System.out.println("================ ================ META FACTS ================ ================");
 		Integer metaFactCount = 0;
 		List<Atom> srcFacts = new ArrayList<>(inputProgram.getFacts());
@@ -194,8 +192,8 @@ public class MetaProgramSyntaxCheckTransformation extends ProgramTransformation<
 			}
 			metaRuleCount++;
 		}
-
 		System.out.println("================ ================ ================ ================");
+
 		InputProgram.Builder programBuilder = InputProgram.builder();
 		InputProgram metaProgram = programBuilder
 			.addRules(metaRules)
