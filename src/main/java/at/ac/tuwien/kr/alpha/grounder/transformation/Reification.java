@@ -177,27 +177,31 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 
 	protected List<Atom> generateTermDescription(Term term, Term idTerm, Integer argId, String[] names) {
 		List<Atom> generated = new ArrayList<>();
-		Term termArg = null;
+		String argType = null;
+		Term argValue = null;
 		if (term instanceof ConstantTerm) {
-			termArg = FunctionTerm.getInstance(
-					((ConstantTerm<?>) term).isSymbolic() ? "const" : ((ConstantTerm<?>) term).getObject().getClass().getSimpleName().toLowerCase(),
-					ConstantTerm.getInstance(term));
+			ConstantTerm<?> constTerm = (ConstantTerm<?>) term;
+			if (constTerm.isSymbolic()) {
+				argType = "const";
+				argValue = ConstantTerm.getSymbolicInstance(constTerm.getObject().toString());
+			} else {
+				argType = constTerm.getObject().getClass().getSimpleName().toLowerCase();
+				argValue = constTerm;
+			}
 		} else if (term instanceof FunctionTerm) {
 			Integer funcId = this.funcLog.append((FunctionTerm) term);
-			termArg = FunctionTerm.getInstance(
-					"func",
-					ConstantTerm.getInstance(funcId));
+			argType = "func";
+			argValue = ConstantTerm.getInstance(funcId);
 		} else if (term instanceof VariableTerm) {
-			termArg = FunctionTerm.getInstance(
-					"var",
-					ConstantTerm.getInstance(((VariableTerm) term).toString()));
+			argType = "var";
+			argValue = ConstantTerm.getInstance(((VariableTerm) term).toString());
 		} else {
 			throw new RuntimeException("unhandled term type: " + term.getClass().getSimpleName());
 		}
 		generated.add(new BasicAtom(
 				Predicate.getInstance(names[2], 2),
 				idTerm,
-				FunctionTerm.getInstance("arg", ConstantTerm.getInstance(argId), termArg)));
+				FunctionTerm.getInstance("arg", ConstantTerm.getInstance(argId), FunctionTerm.getInstance(argType, argValue))));
 		return generated;
 	}
 
