@@ -85,7 +85,6 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 		List<BasicRule> metaRules = new ArrayList<>();
 
 		// TODO: convert into basic rules mit normal heads?
-		System.out.println("================ ================ META FACTS ================ ================");
 		Integer metaFactCount = 0;
 		List<Atom> srcFacts = new ArrayList<>(inputProgram.getFacts());
 		for (Atom srcFact : srcFacts) {
@@ -102,9 +101,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 			metaFacts.addAll(generateTermDescriptions(srcFact.getTerms(), idTerm, names));
 			metaFactCount++;
 		}
-		System.out.println("================ ================ ================ ================");
 
-		System.out.println("================ ================ META RULES ================ ================");
 		Integer metaRuleCount = 0;
 		List<BasicRule> srcRules = new ArrayList<>(inputProgram.getRules());
 		for (BasicRule srcRule : srcRules) {
@@ -158,7 +155,6 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 			}
 			metaRuleCount++;
 		}
-		System.out.println("================ ================ ================ ================");
 
 		InputProgram.Builder programBuilder = InputProgram.builder();
 		InputProgram metaProgram = programBuilder
@@ -166,11 +162,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 				.addFacts(metaFacts)
 				.build();
 
-		System.out.println("================ ================ META PROGRAM ================ ================");
-		System.out.println(metaProgram.toString());
-		System.out.println("================ ================ ================ ================");
-
-		return null;
+		return metaProgram;
 	}
 
 	protected List<Atom> generateTermDescriptions(List<Term> terms, Term idTerm, String[] names) {
