@@ -21,7 +21,7 @@ public class NormalizeProgramTransformation extends ProgramTransformation<InputP
 	public NormalProgram apply(InputProgram inputProgram) {
 		InputProgram tmpPrg;
 		// Generate Meta Program
-		InputProgram metaPrg = new MetaProgramSyntaxCheckTransformation().apply(inputProgram);
+		InputProgram metaPrg = new Reification().apply(inputProgram);
 		// Transform choice rules.
 		tmpPrg = new ChoiceHeadToNormal().apply(inputProgram);
 		// Transform cardinality aggregates.
