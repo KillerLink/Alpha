@@ -27,6 +27,22 @@
  */
 package at.ac.tuwien.kr.alpha;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.antlr.v4.runtime.RecognitionException;
+import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import at.ac.tuwien.kr.alpha.api.Alpha;
 import at.ac.tuwien.kr.alpha.common.AnswerSet;
 import at.ac.tuwien.kr.alpha.common.AnswerSetFormatter;
@@ -44,21 +60,6 @@ import at.ac.tuwien.kr.alpha.config.CommandLineParser;
 import at.ac.tuwien.kr.alpha.config.InputConfig;
 import at.ac.tuwien.kr.alpha.solver.Solver;
 import at.ac.tuwien.kr.alpha.solver.SolverMaintainingStatistics;
-import org.antlr.v4.runtime.RecognitionException;
-import org.apache.commons.cli.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Main entry point for Alpha.
@@ -93,6 +94,21 @@ public class Main {
 			Main.bailOut(e.getMessage());
 		} catch (IOException e) {
 			Main.bailOut("Failed to parse program.", e);
+		}
+
+		if (cfg.getInputConfig().isReify()) {
+			InputProgram reified = alpha.reify(program);
+			if (cfg.getInputConfig().getReifyTarget() == null) {
+				System.out.println(reified);
+			} else {
+				try (PrintStream ps = new PrintStream(cfg.getInputConfig().getReifyTarget())) {
+					ps.println(reified);
+				} catch (IOException ex) {
+					LOGGER.error("Error writing reified program", ex);
+					Main.exitWithMessage("Error writing reified program to: " + cfg.getInputConfig().getReifyTarget(), 1);
+				}
+			}
+			System.exit(0);
 		}
 
 		NormalProgram normalized = alpha.normalizeProgram(program);
@@ -152,7 +168,7 @@ public class Main {
 	/**
 	 * Writes the given {@link InternalProgram} to the destination passed as the second parameter
 	 * 
-	 * @param prg   the program to write
+	 * @param prg  the program to write
 	 * @param path the path to write the program to
 	 */
 	private static void writeInternalProgram(InternalProgram prg, String path) {

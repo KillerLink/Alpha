@@ -27,8 +27,13 @@
  */
 package at.ac.tuwien.kr.alpha.config;
 
-import at.ac.tuwien.kr.alpha.solver.BinaryNoGoodPropagationEstimation;
-import at.ac.tuwien.kr.alpha.solver.heuristics.BranchingHeuristicFactory.Heuristic;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -40,12 +45,8 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
+import at.ac.tuwien.kr.alpha.solver.BinaryNoGoodPropagationEstimation;
+import at.ac.tuwien.kr.alpha.solver.heuristics.BranchingHeuristicFactory.Heuristic;
 
 /**
  * Parses given argument lists (as passed when Alpha is called from command line) into {@link SystemConfig}s and
@@ -87,6 +88,8 @@ public class CommandLineParser {
 			.desc("Write a dot file with the input program's component graph").build();
 	private static final Option OPT_WRITE_XSLX = Option.builder("wx").longOpt("write-xlsx").hasArg(true).argName("path").type(String.class)
 			.desc("Write answer sets to excel files, i.e. xlsx workbooks (one workbook per answer set)").build();
+	private static final Option OPT_REIFY = Option.builder("rf").longOpt("reify").hasArg(true).optionalArg(true).argName("target").type(String.class)
+			.desc("Reifies the input file, i.e. generates a set of facts describing the given ASP program").build();
 
 	// general system-wide config
 	private static final Option OPT_GROUNDER = Option.builder("g").longOpt("grounder").hasArg(true).argName("grounder")
@@ -164,6 +167,7 @@ public class CommandLineParser {
 		CommandLineParser.CLI_OPTS.addOption(CommandLineParser.OPT_WRITE_PREPROCESSED);
 		CommandLineParser.CLI_OPTS.addOption(CommandLineParser.OPT_WRITE_DEPGRAPH);
 		CommandLineParser.CLI_OPTS.addOption(CommandLineParser.OPT_WRITE_COMPGRAPH);
+		CommandLineParser.CLI_OPTS.addOption(CommandLineParser.OPT_REIFY);
 
 		CommandLineParser.CLI_OPTS.addOption(CommandLineParser.OPT_GROUNDER);
 		CommandLineParser.CLI_OPTS.addOption(CommandLineParser.OPT_SOLVER);
@@ -254,6 +258,7 @@ public class CommandLineParser {
 		this.inputOptionHandlers.put(CommandLineParser.OPT_WRITE_PREPROCESSED.getOpt(), this::handleWritePreprocessed);
 		this.inputOptionHandlers.put(CommandLineParser.OPT_WRITE_DEPGRAPH.getOpt(), this::handleWriteDepgraph);
 		this.inputOptionHandlers.put(CommandLineParser.OPT_WRITE_COMPGRAPH.getOpt(), this::handleWriteCompgraph);
+		this.inputOptionHandlers.put(CommandLineParser.OPT_REIFY.getOpt(), this::handleReify);
 	}
 
 	public AlphaConfig parseCommandLine(String[] args) throws ParseException {
@@ -478,5 +483,10 @@ public class CommandLineParser {
 	private void handleAtomSeparator(Option opt, SystemConfig cfg) {
 		cfg.setAtomSeparator(StringEscapeUtils.unescapeJava(opt.getValue(SystemConfig.DEFAULT_ATOM_SEPARATOR)));
 	}
-	
+
+	private void handleReify(Option opt, InputConfig cfg) {
+		cfg.setReify(true);
+		cfg.setReifyTarget(opt.getValue(null)); // We write to stdout if no target path is given.
+	}
+
 }

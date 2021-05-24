@@ -42,7 +42,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 
 	private class FunctionTermLog {
 		private Deque<FunctionTermLogEntry> funcTerms = new ArrayDeque<>();
-		private int nextId = 0;
+		private int nextId;
 
 		protected int append(FunctionTerm term) {
 			int funcId = this.nextId++;
@@ -67,7 +67,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 		}
 
 		protected List<Atom> generateAll(String[] names) {
-			names = new String[] { "func", "func_symbol", "func_argument" };
+			names = new String[] {"func", "func_symbol", "func_argument" };
 			List<Atom> generated = new ArrayList<>();
 			while (!funcTerms.isEmpty()) {
 				generated.addAll(generateOne(this.funcTerms.removeFirst(), names));
@@ -88,7 +88,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 		int metaFactCount = 0;
 		List<Atom> srcFacts = new ArrayList<>(inputProgram.getFacts());
 		for (Atom srcFact : srcFacts) {
-			String[] names = new String[] { "fact", "fact_predicate", "fact_argument" };
+			String[] names = new String[] {"fact", "fact_predicate", "fact_argument" };
 			Predicate factPredicate = srcFact.getPredicate();
 			Term idTerm = ConstantTerm.getInstance(metaFactCount);
 			metaFacts.add(new BasicAtom(Predicate.getInstance(names[0], 1), idTerm));
@@ -105,7 +105,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 		int metaRuleCount = 0;
 		List<BasicRule> srcRules = new ArrayList<>(inputProgram.getRules());
 		for (BasicRule srcRule : srcRules) {
-			String[] names = new String[] { "rule", "rule_head_predicate", "rule_head_argument" };
+			String[] names = new String[] {"rule", "rule_head_predicate", "rule_head_argument" };
 			Head ruleHead = srcRule.getHead();
 			Predicate headPredicate = null;
 			ConstantTerm<?> headType = null;
@@ -131,7 +131,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 			Set<Literal> ruleLiterals = srcRule.getBody();
 			int metaLiteralCount = 0;
 			for (Literal literal : ruleLiterals) {
-				String[] names2 = new String[] { "literal", "literal_predicate", "literal_argument" };
+				String[] names2 = new String[] {"literal", "literal_predicate", "literal_argument" };
 				String literalType = null;
 				Predicate literalPredicate = null;
 				if (literal instanceof BasicLiteral) {

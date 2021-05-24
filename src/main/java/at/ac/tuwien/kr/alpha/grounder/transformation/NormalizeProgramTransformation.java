@@ -20,8 +20,6 @@ public class NormalizeProgramTransformation extends ProgramTransformation<InputP
 	@Override
 	public NormalProgram apply(InputProgram inputProgram) {
 		InputProgram tmpPrg;
-		// Generate Meta Program
-		InputProgram metaPrg = new Reification().apply(inputProgram);
 		// Transform choice rules.
 		tmpPrg = new ChoiceHeadToNormal().apply(inputProgram);
 		// Transform cardinality aggregates.

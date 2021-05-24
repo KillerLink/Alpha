@@ -1,14 +1,14 @@
 package at.ac.tuwien.kr.alpha.config;
 
-import at.ac.tuwien.kr.alpha.api.externals.Externals;
-import at.ac.tuwien.kr.alpha.common.Predicate;
-import at.ac.tuwien.kr.alpha.common.fixedinterpretations.PredicateInterpretation;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import at.ac.tuwien.kr.alpha.api.externals.Externals;
+import at.ac.tuwien.kr.alpha.common.Predicate;
+import at.ac.tuwien.kr.alpha.common.fixedinterpretations.PredicateInterpretation;
 
 public class InputConfig {
 	
@@ -24,6 +24,7 @@ public class InputConfig {
 	public static final String PREPROC_STDOUT_PATH = "---"; // indicator preprocessed program should be written to stdout
 	public static final boolean DEFAULT_WRITE_XLSX = false;
 	public static final String DEFAULT_XLSX_OUTFILE_PATH = "alphaAnswerSet"; // current directory, files named "alphaAnswerSet.{num}.{ext}"
+	public static final boolean DEFAULT_REIFY = false;
 
 	private List<String> aspStrings = new ArrayList<>();
 	private List<String> files = new ArrayList<>();
@@ -40,6 +41,8 @@ public class InputConfig {
 	private Map<String, PredicateInterpretation> predicateMethods = Externals.getStandardLibraryExternals();
 	private boolean writeAnswerSetsAsXlsx = InputConfig.DEFAULT_WRITE_XLSX;
 	private String answerSetFileOutputPath;
+	private boolean reify = InputConfig.DEFAULT_REIFY;
+	private String reifyTarget;
 
 	public static InputConfig forString(String str) {
 		InputConfig retVal = new InputConfig();
@@ -170,6 +173,22 @@ public class InputConfig {
 
 	public void setAnswerSetFileOutputPath(String answerSetFileOutputPath) {
 		this.answerSetFileOutputPath = answerSetFileOutputPath;
+	}
+
+	public boolean isReify() {
+		return this.reify;
+	}
+
+	public void setReify(boolean reify) {
+		this.reify = reify;
+	}
+
+	public String getReifyTarget() {
+		return this.reifyTarget;
+	}
+
+	public void setReifyTarget(String reifyTarget) {
+		this.reifyTarget = reifyTarget;
 	}
 
 }
