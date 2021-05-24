@@ -23,15 +23,15 @@ import at.ac.tuwien.kr.alpha.common.terms.VariableTerm;
 public class Reification extends ProgramTransformation<InputProgram, InputProgram> {
 
 	private static class FunctionTermLogEntry {
-		private final Integer id;
+		private final int id;
 		private final FunctionTerm term;
 
-		protected FunctionTermLogEntry(Integer id, FunctionTerm term) {
+		protected FunctionTermLogEntry(int id, FunctionTerm term) {
 			this.id = id;
 			this.term = term;
 		}
 
-		protected Integer getId() {
+		protected int getId() {
 			return this.id;
 		}
 
@@ -42,10 +42,10 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 
 	private class FunctionTermLog {
 		private Deque<FunctionTermLogEntry> funcTerms = new ArrayDeque<>();
-		private Integer nextId = 0;
+		private int nextId = 0;
 
-		protected Integer append(FunctionTerm term) {
-			Integer funcId = this.nextId++;
+		protected int append(FunctionTerm term) {
+			int funcId = this.nextId++;
 			this.funcTerms.addLast(new FunctionTermLogEntry(funcId, term));
 			return funcId;
 		}
@@ -85,7 +85,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 		List<BasicRule> metaRules = new ArrayList<>();
 
 		// TODO: convert into basic rules mit normal heads?
-		Integer metaFactCount = 0;
+		int metaFactCount = 0;
 		List<Atom> srcFacts = new ArrayList<>(inputProgram.getFacts());
 		for (Atom srcFact : srcFacts) {
 			String[] names = new String[] { "fact", "fact_predicate", "fact_argument" };
@@ -102,7 +102,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 			metaFactCount++;
 		}
 
-		Integer metaRuleCount = 0;
+		int metaRuleCount = 0;
 		List<BasicRule> srcRules = new ArrayList<>(inputProgram.getRules());
 		for (BasicRule srcRule : srcRules) {
 			String[] names = new String[] { "rule", "rule_head_predicate", "rule_head_argument" };
@@ -129,7 +129,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 			metaFacts.addAll(generateTermDescriptions(headTerms, idTerm, names));
 			//
 			Set<Literal> ruleLiterals = srcRule.getBody();
-			Integer metaLiteralCount = 0;
+			int metaLiteralCount = 0;
 			for (Literal literal : ruleLiterals) {
 				String[] names2 = new String[] { "literal", "literal_predicate", "literal_argument" };
 				String literalType = null;
@@ -167,7 +167,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 
 	protected List<Atom> generateTermDescriptions(List<Term> terms, Term idTerm, String[] names) {
 		List<Atom> generated = new ArrayList<>();
-		Integer idx = 0;
+		int idx = 0;
 		for (Term term : terms) {
 			generated.addAll(generateTermDescription(term, idTerm, idx++, names));
 			generated.addAll(funcLog.generateAll(names));
@@ -175,7 +175,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 		return generated;
 	}
 
-	protected List<Atom> generateTermDescription(Term term, Term idTerm, Integer argId, String[] names) {
+	protected List<Atom> generateTermDescription(Term term, Term idTerm, int argId, String[] names) {
 		List<Atom> generated = new ArrayList<>();
 		String argType = null;
 		Term argValue = null;
@@ -189,7 +189,7 @@ public class Reification extends ProgramTransformation<InputProgram, InputProgra
 				argValue = constTerm;
 			}
 		} else if (term instanceof FunctionTerm) {
-			Integer funcId = this.funcLog.append((FunctionTerm) term);
+			int funcId = this.funcLog.append((FunctionTerm) term);
 			argType = "func";
 			argValue = ConstantTerm.getInstance(funcId);
 		} else if (term instanceof VariableTerm) {
